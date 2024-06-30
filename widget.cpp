@@ -20,6 +20,9 @@ uint32_t BaseAddress = 0x6A9EC0;
 std::vector<size_t> offsets_sunlights = {0x768, 0x5560};
 std::vector<size_t> offsets_cardnum = {0x768, 0x144, 0x24};
 std::vector<size_t> offsets_card = {0x768, 0x144};
+std::vector<size_t> offsets_coin = {0x82C, 0x208};
+std::vector<size_t> offsets_golden_coin = {0x82C, 0x20C};
+std::vector<size_t> offsets_diamond = {0x82C, 0x210};
 
 
 //必须使用全局函数，不能在class中定义
@@ -71,12 +74,22 @@ Widget::Widget(QWidget *parent)
     ui->YES->hide();
     ui->lineEdit->hide();
     ui->Verify->hide();
-    ui->line->hide();
+    ui->line_1->hide();
     ui->KeepNoCD->hide();
     ui->RefreshCD->hide();
     ui->ToggleLock->hide();
-    this->setWindowTitle("植物大战僵尸杂交版辅助");
+    ui->line_2->hide();
+    ui->edit_coin->hide();
+    ui->edit_diamond->hide();
+    ui->edit_golden_coin->hide();
+    ui->Verify_coin->hide();
+    ui->Verify_diamond->hide();
+    ui->Verify_golden_coin->hide();
+    this->setWindowTitle("植物大战僵尸杂交版辅助 v1.2");
     ui->lineEdit->setValidator(new QRegularExpressionValidator(QRegularExpression("[0-9]+$")));
+    ui->edit_coin->setValidator(new QRegularExpressionValidator(QRegularExpression("[0-9]+$")));
+    ui->edit_golden_coin->setValidator(new QRegularExpressionValidator(QRegularExpression("[0-9]+$")));
+    ui->edit_diamond->setValidator(new QRegularExpressionValidator(QRegularExpression("[0-9]+$")));
 
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &Widget::_RefreshCD);
@@ -125,6 +138,23 @@ void Widget::GetGameInfo(HWND w1ndow)
     ReadIntFromProcessMemory(ProcessHandle, address, CARDNUM);
     //qDebug() << "address:" << Qt::hex << address;
     //qDebug() << "cardnum:" << Qt::dec << CARDNUM;
+
+    //获取金币等
+    uint32_t address_coin;
+    int coin;
+    address_coin = readMultiLevelPointer(ProcessHandle, BaseAddress, offsets_coin);
+    ReadIntFromProcessMemory(ProcessHandle, address_coin, coin);
+    ui->edit_coin->setText(QString().number(coin));
+    uint32_t address_golden_coin;
+    int golden_coin;
+    address_golden_coin = readMultiLevelPointer(ProcessHandle, BaseAddress, offsets_golden_coin);
+    ReadIntFromProcessMemory(ProcessHandle, address_golden_coin, golden_coin);
+    ui->edit_golden_coin->setText(QString().number(golden_coin));
+    uint32_t address_diamond;
+    int diamond;
+    address_diamond = readMultiLevelPointer(ProcessHandle, BaseAddress, offsets_diamond);
+    ReadIntFromProcessMemory(ProcessHandle, address_diamond, diamond);
+    ui->edit_diamond->setText(QString().number(diamond));
 }
 
 //根据基址和指针读取内存
@@ -184,6 +214,13 @@ void Widget::RefreshCD()
     }
 }
 
+//前期考虑不周，修改阳光函数不能通用
+void Widget::VerifyData(int newData, std::vector<size_t> offsets)
+{
+    uint32_t address;
+    address = readMultiLevelPointer(ProcessHandle, BaseAddress, offsets);
+    modifyMemoryData(ProcessHandle, address, newData);
+}
 
 //响应查找窗口按钮，查找窗口、获取进程信息、设置全局变量等
 void Widget::on_GetWindow_clicked()
@@ -206,10 +243,17 @@ void Widget::on_GetWindow_clicked()
     ui->lineEdit->show();
     ui->Verify->show();
     ui->GetWindow->hide();
-    ui->line->show();
+    ui->line_1->show();
     ui->KeepNoCD->show();
     ui->RefreshCD->show();
     ui->ToggleLock->show();
+    ui->line_2->show();
+    ui->edit_coin->show();
+    ui->edit_diamond->show();
+    ui->edit_golden_coin->show();
+    ui->Verify_coin->show();
+    ui->Verify_diamond->show();
+    ui->Verify_golden_coin->show();
     return;
 }
 
@@ -221,23 +265,25 @@ void Widget::on_Verify_clicked()
     //qDebug() <<"sended"<<newValue;
 }
 
-
+//响应刷新CD按钮
 void Widget::on_RefreshCD_clicked()
 {
     RefreshCD();
 }
 
+//槽函数：响应无CD定时器信号
 void Widget::_RefreshCD()
 {
     RefreshCD();
 }
 
+//槽函数：响应锁定阳光定时器信号
 void Widget::_verifySunlightData()
 {
     verifySunlightData(LOCKEDSUNLIGHTS);
 }
 
-
+//无CD复选框状态改变处理
 void Widget::on_KeepNoCD_stateChanged(int arg1)
 {
     if(arg1==2)
@@ -251,7 +297,7 @@ void Widget::on_KeepNoCD_stateChanged(int arg1)
     }
 }
 
-
+//锁定阳光复选框状态改变处理
 void Widget::on_ToggleLock_stateChanged(int arg1)
 {
     if(arg1==2)
@@ -266,5 +312,32 @@ void Widget::on_ToggleLock_stateChanged(int arg1)
         timer_sunlights->stop();
         //qDebug()<<"Timer_sunlights stoped";
     }
+}
+
+//废物
+void Widget::on_pushButton_clicked()
+{
+
+}
+
+//响应修改硬币按钮
+void Widget::on_Verify_coin_clicked()
+{
+    int coin = ui->edit_coin->text().toInt();
+    VerifyData(coin, offsets_coin);
+}
+
+//响应修改金币按钮
+void Widget::on_Verify_golden_coin_clicked()
+{
+    int golden_coin = ui->edit_golden_coin->text().toInt();
+    VerifyData(golden_coin, offsets_golden_coin);
+}
+
+//响应修改钻石按钮
+void Widget::on_Verify_diamond_clicked()
+{
+    int diamond = ui->edit_diamond->text().toInt();
+    VerifyData(diamond, offsets_diamond);
 }
 

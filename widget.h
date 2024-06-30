@@ -23,6 +23,7 @@ public:
     bool ReadIntFromProcessMemory(HANDLE processHandle, uint32_t address, int& data);
     void verifySunlightData(int newData);
     void RefreshCD();
+    void VerifyData(int newData, std::vector<size_t> offsets);
 
 signals:
     void timeout();
@@ -41,6 +42,14 @@ private slots:
     void on_KeepNoCD_stateChanged(int arg1);
 
     void on_ToggleLock_stateChanged(int arg1);
+
+    void on_pushButton_clicked();
+
+    void on_Verify_coin_clicked();
+
+    void on_Verify_golden_coin_clicked();
+
+    void on_Verify_diamond_clicked();
 
 private:
     Ui::Widget *ui;
