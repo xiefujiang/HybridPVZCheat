@@ -1,7 +1,7 @@
 # HybridPVZCheat
 a cheat widget for Hybrid_PVZ
 ###
-# v1.4 added function of OneTap
+# v1.4 added function of OneTap to zombies
 ###
 # v1.3 added adaption to the game version v2.2
 ###
