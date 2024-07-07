@@ -37,6 +37,10 @@ private slots:
 
     void _RefreshCD();
 
+    void _DecreaseZombiesHP();
+
+    void _DecreaseDefenceHP();
+
     void _verifySunlightData();
 
     void on_KeepNoCD_stateChanged(int arg1);
@@ -51,9 +55,13 @@ private slots:
 
     void on_Verify_diamond_clicked();
 
+    void on_Keep_OneTap_stateChanged(int arg1);
+
 private:
     Ui::Widget *ui;
     QTimer *timer;
     QTimer *timer_sunlights;
+    QTimer *timer_Zombies;
+    QTimer *timer_Defence;
 };
 #endif // WIDGET_H

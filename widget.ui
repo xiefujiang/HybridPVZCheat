@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>399</width>
+    <width>591</width>
     <height>450</height>
    </rect>
   </property>
@@ -24,8 +24,8 @@
   </property>
   <property name="maximumSize">
    <size>
-    <width>399</width>
-    <height>450</height>
+    <width>9999</width>
+    <height>9999</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -154,7 +154,7 @@
     <rect>
      <x>0</x>
      <y>110</y>
-     <width>401</width>
+     <width>391</width>
      <height>20</height>
     </rect>
    </property>
@@ -203,7 +203,7 @@
     <rect>
      <x>0</x>
      <y>250</y>
-     <width>401</width>
+     <width>391</width>
      <height>20</height>
     </rect>
    </property>
@@ -309,6 +309,37 @@
    </property>
    <property name="openExternalLinks">
     <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="Line" name="line_3">
+   <property name="geometry">
+    <rect>
+     <x>380</x>
+     <y>0</y>
+     <width>20</width>
+     <height>451</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Vertical</enum>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="Keep_OneTap">
+   <property name="geometry">
+    <rect>
+     <x>420</x>
+     <y>30</y>
+     <width>151</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>   僵尸一击必杀</string>
    </property>
   </widget>
  </widget>

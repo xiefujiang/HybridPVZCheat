@@ -23,6 +23,7 @@ std::vector<size_t> offsets_card = {0x768, 0x144};
 std::vector<size_t> offsets_coin = {0x82C, 0x208};
 std::vector<size_t> offsets_golden_coin = {0x82C, 0x20C};
 std::vector<size_t> offsets_diamond = {0x82C, 0x210};
+std::vector<size_t> offsets_zombies = {0x768, 0x90};
 
 
 //必须使用全局函数，不能在class中定义
@@ -85,7 +86,9 @@ Widget::Widget(QWidget *parent)
     ui->Verify_coin->hide();
     ui->Verify_diamond->hide();
     ui->Verify_golden_coin->hide();
-    this->setWindowTitle("植物大战僵尸杂交版辅助 v1.2");
+    ui->line_3->hide();
+    ui->Keep_OneTap->hide();
+    this->setWindowTitle("植物大战僵尸杂交版辅助 v1.4");
     ui->lineEdit->setValidator(new QRegularExpressionValidator(QRegularExpression("[0-9]+$")));
     ui->edit_coin->setValidator(new QRegularExpressionValidator(QRegularExpression("[0-9]+$")));
     ui->edit_golden_coin->setValidator(new QRegularExpressionValidator(QRegularExpression("[0-9]+$")));
@@ -95,7 +98,13 @@ Widget::Widget(QWidget *parent)
     connect(timer, &QTimer::timeout, this, &Widget::_RefreshCD);
     timer_sunlights = new QTimer(this);
     connect(timer_sunlights, &QTimer::timeout, this, &Widget::_verifySunlightData);
+    timer_Zombies = new QTimer(this);
+    connect(timer_Zombies, &QTimer::timeout, this, &Widget::_DecreaseZombiesHP);
+    timer_Defence = new QTimer(this);
+    connect(timer_Defence, &QTimer::timeout, this, &Widget::_DecreaseDefenceHP);
+
 }
+
 
 Widget::~Widget()
 {
@@ -106,7 +115,7 @@ Widget::~Widget()
 HWND Widget::GetGameWindow()
 {
     QString className = "MainWindow";
-    QString titleSubstring = "植物大战僵尸杂交版";
+    QString titleSubstring = "植物大战僵尸";
     HWND foundHwnd = findWindowByClassNameAndTitle(className, titleSubstring);
     if (foundHwnd) {
         //qDebug() << "Found window with title containing" << titleSubstring;
@@ -214,6 +223,38 @@ void Widget::RefreshCD()
     }
 }
 
+void Widget::_DecreaseZombiesHP()
+{
+    for(int n = 1; n <=500; n++)
+    {
+        size_t num = 0x204;
+        std::vector<size_t> offsets_temp = offsets_zombies;
+        offsets_temp.push_back((size_t)(0xc8+num*(n-1)));
+        uint32_t address;
+        address = readMultiLevelPointer(ProcessHandle, BaseAddress, offsets_temp);
+        modifyMemoryData(ProcessHandle, address, 1);
+    }
+}
+
+void Widget::_DecreaseDefenceHP()
+{
+    for(int n = 1; n <=500; n++)
+    {
+        size_t num = 0x204;
+        std::vector<size_t> offsets_temp1 = offsets_zombies;
+        std::vector<size_t> offsets_temp2 = offsets_zombies;
+        offsets_temp1.push_back((size_t)(0xd0+num*(n-1)));
+        offsets_temp2.push_back((size_t)(0xdc+num*(n-1)));
+        uint32_t address1;
+        uint32_t address2;
+        address1 = readMultiLevelPointer(ProcessHandle, BaseAddress, offsets_temp1);
+        address2 = readMultiLevelPointer(ProcessHandle, BaseAddress, offsets_temp2);
+        modifyMemoryData(ProcessHandle, address1, 0);
+        modifyMemoryData(ProcessHandle, address2, 0);
+    }
+}
+
+
 //前期考虑不周，修改阳光函数不能通用
 void Widget::VerifyData(int newData, std::vector<size_t> offsets)
 {
@@ -254,6 +295,8 @@ void Widget::on_GetWindow_clicked()
     ui->Verify_coin->show();
     ui->Verify_diamond->show();
     ui->Verify_golden_coin->show();
+    ui->line_3->show();
+    ui->Keep_OneTap->show();
     return;
 }
 
@@ -276,6 +319,7 @@ void Widget::_RefreshCD()
 {
     RefreshCD();
 }
+
 
 //槽函数：响应锁定阳光定时器信号
 void Widget::_verifySunlightData()
@@ -339,5 +383,20 @@ void Widget::on_Verify_diamond_clicked()
 {
     int diamond = ui->edit_diamond->text().toInt();
     VerifyData(diamond, offsets_diamond);
+}
+
+
+void Widget::on_Keep_OneTap_stateChanged(int arg1)
+{
+    if(arg1 == 2)
+    {
+        timer_Zombies->start(100);
+        timer_Defence->start(100);
+    }
+    else if(arg1 == 0)
+    {
+        timer_Zombies->stop();
+        timer_Defence->stop();
+    }
 }
 
